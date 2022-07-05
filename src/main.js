@@ -3,10 +3,16 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 import "@/styles/index.less";
+// 封装icon图标组件
 import MyIcon from "@/components/MyIcon";
 Vue.component("MyIcon", MyIcon);
-Vue.config.productionTip = false;
+import vant from "vant";
+Vue.use(vant);
+import "vant/lib/index.less";
+//移动适配
+import "amfe-flexible";
 
+Vue.config.productionTip = false;
 new Vue({
   router,
   store,
