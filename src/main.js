@@ -12,6 +12,9 @@ import "vant/lib/index.less";
 //移动适配
 import "amfe-flexible";
 
+// 引入dayjs
+import "@/utils/dayjs";
+
 Vue.config.productionTip = false;
 new Vue({
   router,

@@ -1,6 +1,10 @@
 <template>
   <div class="div">
-    <van-nav-bar title="标题" />
+    <van-nav-bar title="标题">
+      <template #left>
+        <van-icon name="cross" size="18" @click="$router.back()" />
+      </template>
+    </van-nav-bar>
     <van-form @submit="onSubmit" ref="form">
       <van-field
         v-model="user.mobile"
@@ -53,7 +57,9 @@
 <script>
 import { login, smscodes } from "@/api";
 import { Toast } from "vant";
+import MyIcon from "@/components/MyIcon.vue";
 export default {
+  components: { MyIcon },
   data() {
     return {
       isshowCountShow: false,
@@ -91,6 +97,8 @@ export default {
         const res = await login(this.user);
         console.log(res);
         Toast.success("登录成功");
+        this.$store.commit("getToken", res.data.data);
+        this.$router.push("./");
       } catch (error) {
         Toast.fail(error?.response?.data?.message || "服务端错误");
       }
@@ -117,6 +125,9 @@ export default {
 <style scoped lang="less">
 /deep/.toutiao {
   font-size: 37px;
+}
+.van-icon {
+  color: #fff;
 }
 .send-sms-btn {
   width: 152px;
