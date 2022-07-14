@@ -35,25 +35,7 @@
           <div slot="label" class="publish-date">
             {{ objects.pubdate | filterTime }}
           </div>
-          <van-button
-            class="follow-btn"
-            type="info"
-            color="#3296fa"
-            round
-            size="small"
-            icon="plus"
-            @click="onFollow"
-            v-if="!objects.is_followed"
-            >关注</van-button
-          >
-          <van-button
-            class="follow-btn"
-            round
-            size="small"
-            v-else
-            @click="onFollow"
-            >已关注</van-button
-          >
+          <FollowUser :objects="objects" />
         </van-cell>
         <!-- /用户信息 -->
 
@@ -64,8 +46,10 @@
           v-html="objects.content"
         ></div>
         <van-divider>正文结束</van-divider>
+        <comment-list :source="objects.art_id"></comment-list>
       </div>
       <!-- /加载完成-文章详情 -->
+      <!-- 评论列表 -->
 
       <!-- 加载失败：404 -->
       <div class="error-wrap" v-else-if="isNotFound">
@@ -85,25 +69,42 @@
 
     <!-- 底部区域 -->
     <div class="article-bottom">
-      <van-button class="comment-btn" type="default" round size="small"
+      <van-button
+        class="comment-btn"
+        type="default"
+        round
+        size="small"
+        @click="ispopup = true"
         >写评论</van-button
       >
       <van-icon name="comment-o" :badge="objects.comm_count" color="#777" />
-      <van-icon color="#777" name="star-o" />
-      <van-icon color="#777" name="good-job-o" />
+      <!-- <van-icon color="#777" name="star-o" /> -->
+      <CollectArticle :id="objects.art_id" v-model="objects.isCollected" />
+      <!-- <van-icon color="#777" name="good-job-o" /> -->
+      <LikeArticle
+        v-model="objects.attitude"
+        :id="objects.art_id"
+      ></LikeArticle>
       <van-icon name="share" color="#777777"></van-icon>
     </div>
     <!-- /底部区域 -->
+    <van-popup v-model="ispopup" position="bottom" :style="{ height: '35%' }"
+      >评论</van-popup
+    >
   </div>
 </template>
 
 <script>
 import "github-markdown-css";
-import { getArticleById, addFollow, deleteFollow } from "@/api";
+import { getArticleById } from "@/api";
 import { ImagePreview } from "vant";
+import FollowUser from "./components/follow-user/index.vue";
+import CollectArticle from "./components/collect-article/index.vue";
+import LikeArticle from "./components/like-article/index.vue";
+import CommentList from "./components/comment-list.vue";
 export default {
   name: "ArticleIndex",
-  components: {},
+  components: { FollowUser, CollectArticle, LikeArticle, CommentList },
   props: {
     articleId: {
       type: [Number, String],
@@ -115,6 +116,7 @@ export default {
       objects: {},
       loading: false,
       isNotFound: false,
+      ispopup: false,
     };
   },
   computed: {},
@@ -124,26 +126,6 @@ export default {
   },
   mounted() {},
   methods: {
-    async onFollow() {
-      // 开启按钮的 loading 状态
-
-      try {
-        // 如果已关注，则取消关注
-        const authorId = this.objects.aut_id;
-        if (this.objects.is_followed) {
-          await deleteFollow(authorId);
-        } else {
-          // 否则添加关注
-          await addFollow(authorId);
-        }
-
-        // 更新视图
-        this.objects.is_followed = !this.objects.is_followed;
-      } catch (err) {
-        console.log(err);
-        this.$toast.fail("操作失败");
-      }
-    },
     getimg() {
       const imgs = this.$refs.center.querySelectorAll("img");
       console.log(imgs);
