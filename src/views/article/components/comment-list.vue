@@ -11,6 +11,7 @@
       :comment="item"
       v-for="item in list"
       :key="item.com_id"
+      @reply_click="$emit('reply_click', $event)"
     ></comment-item>
     <!-- <van-cell
       v-for="item in list"
@@ -30,10 +31,22 @@ export default {
       type: [Number, String, Object],
       required: true,
     },
+    list: {
+      type: Array,
+      default: () => [],
+    },
+    // 【新增这个type】判断是文章还是评论
+    type: {
+      type: String,
+      // 自定义 Prop 数据验证
+      validator(value) {
+        return ["a", "c"].includes(value);
+      },
+      default: "a",
+    },
   },
   data() {
     return {
-      list: [], // 评论列表
       loading: false, // 上拉加载更多的 loading
       finished: false,
       offset: null,
@@ -46,7 +59,7 @@ export default {
     async onLoad() {
       try {
         const res = await getComments({
-          type: "a",
+          type: this.type,
           source: this.source,
           offset: this.offset, // 评论数据的偏移量，值为评论id，表示从此id的数据向后取，不传表示从第一页开始读取数据
           limit: this.limit, // 获取的评论数据个数，不传表示采用后端服务设定的默认每页数据量

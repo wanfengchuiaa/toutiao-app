@@ -23,7 +23,10 @@
       <p class="comment-content">{{ comment.content }}</p>
       <div class="bottom-info">
         <span class="comment-pubdate">{{ comment.pubdate | filterTime }}</span>
-        <van-button class="reply-btn" round
+        <van-button
+          class="reply-btn"
+          round
+          @click="$emit('reply_click', comment)"
           >回复 {{ comment.reply_count }}</van-button
         >
       </div>

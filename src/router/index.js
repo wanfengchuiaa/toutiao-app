@@ -10,6 +10,11 @@ const routes = [
     component: () => import("@/views/login"),
   },
   {
+    path: "/userprofile",
+    name: "userprofile",
+    component: () => import("@/views/userprofile"),
+  },
+  {
     path: "/search",
     name: "search",
     component: () => import("@/views/search"),

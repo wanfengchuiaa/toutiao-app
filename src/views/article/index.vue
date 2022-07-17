@@ -46,7 +46,11 @@
           v-html="objects.content"
         ></div>
         <van-divider>正文结束</van-divider>
-        <comment-list :source="objects.art_id"></comment-list>
+        <comment-list
+          :source="objects.art_id"
+          :list="commentList"
+          @reply_click="isReplyShows"
+        ></comment-list>
       </div>
       <!-- /加载完成-文章详情 -->
       <!-- 评论列表 -->
@@ -88,9 +92,24 @@
       <van-icon name="share" color="#777777"></van-icon>
     </div>
     <!-- /底部区域 -->
-    <van-popup v-model="ispopup" position="bottom" :style="{ height: '35%' }"
-      >评论</van-popup
+    <van-popup v-model="ispopup" position="bottom"
+      ><comment-post
+        :target="objects.art_id"
+        @postsuccess="postsuccess"
+      ></comment-post
+    ></van-popup>
+
+    <van-popup
+      v-model="isReplyShow"
+      position="bottom"
+      style="height: 100%"
+      v-if="isReplyShow"
     >
+      <comment-reply
+        :commentitem="commentitem"
+        @ShutDown="isReplyShow = false"
+      />
+    </van-popup>
   </div>
 </template>
 
@@ -102,9 +121,18 @@ import FollowUser from "./components/follow-user/index.vue";
 import CollectArticle from "./components/collect-article/index.vue";
 import LikeArticle from "./components/like-article/index.vue";
 import CommentList from "./components/comment-list.vue";
+import CommentPost from "./components/comment-post.vue";
+import CommentReply from "./components/comment-reply.vue";
 export default {
   name: "ArticleIndex",
-  components: { FollowUser, CollectArticle, LikeArticle, CommentList },
+  components: {
+    FollowUser,
+    CollectArticle,
+    LikeArticle,
+    CommentList,
+    CommentPost,
+    CommentReply,
+  },
   props: {
     articleId: {
       type: [Number, String],
@@ -117,15 +145,31 @@ export default {
       loading: false,
       isNotFound: false,
       ispopup: false,
+      isReplyShow: false,
+      commentList: [],
+      commentitem: {},
     };
   },
   computed: {},
+  provide() {
+    return {
+      articleId: this.articleId,
+    };
+  },
   watch: {},
   created() {
     this.loadArtcileInfo();
   },
   mounted() {},
   methods: {
+    isReplyShows(item) {
+      this.isReplyShow = true;
+      this.commentitem = item;
+    },
+    postsuccess(obj) {
+      this.ispopup = false;
+      this.commentList.unshift(obj);
+    },
     getimg() {
       const imgs = this.$refs.center.querySelectorAll("img");
       console.log(imgs);
